@@ -33,7 +33,7 @@ Este projeto utiliza o gerenciador de pacotes `uv`.
 ### 1. Clonar o Repositório
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/ThiagoORuby/prf-analise-sinistros.git
 cd prf-analise-sinistros
 ```
 
