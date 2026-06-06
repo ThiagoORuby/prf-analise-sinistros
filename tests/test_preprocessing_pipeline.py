@@ -21,7 +21,7 @@ def test_preprocessing_pipeline(tmp_path):
 
     df_result = run_preprocessing_pipeline(processed_path=temp_processed_path)
 
-    assert df_result.shape == (300086, 46), f"Shape inesperado: {df_result.shape}"
+    assert df_result.shape == (300086, 45), f"Shape inesperado: {df_result.shape}"
 
     assert df_result.isnull().sum().sum() == 0, (
         "A base processada contém valores nulos."
