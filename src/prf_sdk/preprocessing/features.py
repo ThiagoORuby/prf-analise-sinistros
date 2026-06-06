@@ -177,16 +177,6 @@ def create_new_features(df: pd.DataFrame) -> pd.DataFrame:
         )
         df_features = df_features.drop(columns=["data_inversa", "horario"])
 
-    # Calcula pessoas não classificadas (total de pessoas - soma de desfechos
-    # individuais)
-    outcome_cols = ["feridos", "mortos", "ilesos", "ignorados"]
-    if "pessoas" in df_features.columns and all(
-        c in df_features.columns for c in outcome_cols
-    ):
-        df_features["nao_classificados"] = df_features["pessoas"] - df_features[
-            outcome_cols
-        ].sum(axis=1)
-
     # Decompõe características de traçado da via
     df_features = one_hot_encode_tracado_via(df_features)
 
