@@ -24,22 +24,20 @@ def one_hot_encode_tracado_via(df: pd.DataFrame) -> pd.DataFrame:
     if "tracado_via" not in df_encoded.columns:
         return df_encoded
 
-    road_layouts = df_encoded["tracado_via"].dropna().unique()
-    unique_layouts = set(";".join(road_layouts).split(";"))
+    tracado_dummies = (
+        df_encoded["tracado_via"].fillna("").astype(str).str.get_dummies(sep=";")
+    )
+    tracado_dummies.columns = tracado_dummies.columns.str.strip()
+    tracado_dummies = tracado_dummies.loc[:, tracado_dummies.columns != ""]
 
-    for layout in unique_layouts:
-        layout_cleaned = layout.strip()
-        if not layout_cleaned:
-            continue
-        col_name = f"tr_{unidecode(layout_cleaned.lower().replace(' ', '_'))}"
-        df_encoded[col_name] = df_encoded["tracado_via"].apply(
-            lambda x, lc=layout_cleaned: (
-                1
-                if isinstance(x, str)
-                and lc in [t.strip() for t in x.split(";") if t.strip()]
-                else 0
-            )
-        )
+    if not tracado_dummies.empty:
+        tracado_dummies = tracado_dummies.T.groupby(level=0).max().T
+        tracado_dummies.columns = [
+            f"tr_{unidecode(col.lower().replace(' ', '_'))}"
+            for col in tracado_dummies.columns
+        ]
+        tracado_dummies = tracado_dummies.T.groupby(level=0).max().T
+        df_encoded = pd.concat([df_encoded, tracado_dummies], axis=1)
 
     cols_tr = [c for c in df_encoded.columns if c.startswith("tr_")]
     df_encoded["n_caracteristicas_tracado"] = df_encoded[cols_tr].sum(axis=1)
