@@ -5,7 +5,7 @@ import pandas as pd
 from dateutil.easter import easter
 from unidecode import unidecode
 
-from src.utils.constants import CAUSE_MAPPING, UF_TO_REGION
+from prf_sdk.utils.constants import CAUSE_MAPPING, UF_TO_REGION
 
 
 def one_hot_encode_tracado_via(df: pd.DataFrame) -> pd.DataFrame:

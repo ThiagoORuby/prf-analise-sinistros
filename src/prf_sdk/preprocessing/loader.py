@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from settings import settings
-from src.preprocessing.cleaner import clean_data
-from src.preprocessing.features import create_new_features
+from prf_sdk.preprocessing.cleaner import clean_data
+from prf_sdk.preprocessing.features import create_new_features
+from prf_sdk.settings import settings
 
 
 def load_raw_data(file_path: Path | str | None = None) -> pd.DataFrame:

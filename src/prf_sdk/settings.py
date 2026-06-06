@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     :vartype BASE_DIR: Path
     """
 
-    BASE_DIR: Path = Path(__file__).resolve().parent
+    BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
 
     model_config = SettingsConfigDict(
         env_file=".env",

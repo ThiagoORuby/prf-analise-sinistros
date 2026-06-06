@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.preprocessing.loader import run_preprocessing_pipeline
+from prf_sdk.preprocessing.loader import run_preprocessing_pipeline
 
 
 @pytest.mark.slow

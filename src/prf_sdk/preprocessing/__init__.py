@@ -1,6 +1,6 @@
-from src.preprocessing.cleaner import clean_data
-from src.preprocessing.features import create_new_features
-from src.preprocessing.loader import (
+from prf_sdk.preprocessing.cleaner import clean_data
+from prf_sdk.preprocessing.features import create_new_features
+from prf_sdk.preprocessing.loader import (
     load_processed_data,
     load_raw_data,
     run_preprocessing_pipeline,
