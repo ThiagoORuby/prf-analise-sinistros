@@ -15,14 +15,21 @@ O objetivo principal é identificar padrões e fatores (temporais, espaciais, me
 
 ## Estrutura do Repositório
 
-O projeto segue uma estrutura modular projetada para facilitar a colaboração em equipe:
+O projeto segue uma estrutura modular projetada para possibilitar o uso do núcleo do projeto como um SDK reutilizável:
 
-- **`app/`**: Painel interativo desenvolvido para exibição dos resultados.
+- **`app/`**: Painel interativo (dashboard) desenvolvido para exibição dos resultados.
 - **`data/`**: Contém as bases de dados brutos (`data/raw/`) e processados (`data/processed/`).
-- **`docs/`**: Documentação de apoio do projeto, incluindo a proposta de trabalho (`initial_proposal.pdf`), figuras auxiliares (`figures/`) e o projeto latext do relatório final (`artigo/`).
-- **`labs/`**: Notebooks Jupyter organizados cronologicamente para experimentação, análises estatísticas, modelagem experimental e exploração geoespacial.
+- **`docs/`**: Documentação de apoio do projeto, incluindo a proposta inicial do projeto (`proposta_inicial.pdf`), figuras auxiliares (`figures/`) e o relatório final/lartigo (`artigo/`).
+- **`labs/`**: Notebooks Jupyter organizados para experimentação rápida e prototipação.
 - **`models/`**: Pasta para armazenamento dos arquivos binários dos modelos treinados (serializados em formato `.pkl`).
-- **`src/`**: Pacote Python modular contendo as funções de pré-processamento de dados (`preprocessing/`), análise de hipóteses (`analysis/`), modelagem preditiva (`models/`) e utilitários gerais (`utils/`).
+- **`scripts/`**: Scripts utilitários de linha de comando (CLI) que consomem as funções do SDK do projeto.
+- **`src/`**: Diretório que contém o código fonte do SDK do projeto:
+  - **`src/prf_sdk/`**: Pacote principal do SDK Python contendo os módulos reutilizáveis:
+    - `preprocessing/`: Limpeza de dados (`cleaner.py`), engenharia de features (`features.py`) e loaders de carga (`loader.py`).
+    - `analysis/`: Módulos de análises específicas (como testes de hipóteses estatísticas em `initial.py`).
+    - `utils/`: Funções utilitárias e rotinas matemáticas/estatísticas (como `stats.py`).
+    - `settings.py`: Configuração central do SDK utilizando `pydantic-settings` (gerenciamento do `BASE_DIR`, caminhos e variáveis de ambiente).
+- **`tests/`**: Testes unitários e de integração automatizados (utilizando `pytest`).
 
 ---
 
@@ -39,8 +46,24 @@ cd prf-analise-sinistros
 
 ### 2. Sincronizar o Ambiente Virtual e Dependências
 
-Para criar o ambiente virtual e instalar as dependências de forma otimizada com o `uv`:
+Para criar o ambiente virtual e instalar todas as dependências de forma rápida e segura:
 
 ```bash
 uv sync
+```
+
+### 3. Executar Scripts de Linha de Comando (CLI)
+
+O projeto disponibiliza scripts utilitários na pasta `scripts/` que importam as funcionalidades do SDK em `src/prf_sdk/`. Para rodar os scripts:
+
+```bash
+uv run scripts/algum_script.py
+```
+
+### 4. Executar Testes Automatizados
+
+O projeto utiliza o `pytest` para garantir a integridade das rotinas do projeto. Para rodar a suíte de testes:
+
+```bash
+uv run pytest
 ```
