@@ -112,10 +112,9 @@ def add_holiday_features(df: pd.DataFrame) -> pd.DataFrame:
 
     all_holidays = set(fixed_holidays.keys()) | mobile_holidays
 
-    df_holidays["feriado_nacional"] = df_holidays["data_hora"].dt.date.apply(
-        lambda d: 1 if d in all_holidays else 0
+    df_holidays["feriado_nacional"] = (
+        df_holidays["data_hora"].dt.date.isin(all_holidays).astype(int)
     )
-
     return df_holidays
 
 

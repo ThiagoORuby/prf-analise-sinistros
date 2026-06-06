@@ -39,9 +39,7 @@ def load_raw_data(file_path: Path | str | None = None) -> pd.DataFrame:
     return df
 
 
-def save_processed_data(
-    df: pd.DataFrame, file_path: Path | str | None = None
-) -> None:
+def save_processed_data(df: pd.DataFrame, file_path: Path | str | None = None) -> None:
     """Salva o DataFrame processado em um arquivo CSV.
 
     Caso nenhum caminho seja fornecido, os dados são salvos em
@@ -83,7 +81,7 @@ def load_processed_data(file_path: Path | str | None = None) -> pd.DataFrame:
             f"Arquivo de dados processados não localizado em: {file_path}"
         )
 
-    df = pd.read_csv(file_path, low_memory=False)
+    df = pd.read_csv(file_path, index_col=0, low_memory=False)
     return df
 
 

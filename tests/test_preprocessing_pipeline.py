@@ -1,14 +1,16 @@
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from src.preprocessing.loader import run_preprocessing_pipeline
 
 
+@pytest.mark.slow
 def test_preprocessing_pipeline(tmp_path):
     """Testa o pipeline de pré-processamento de ponta a ponta.
 
-    Verifica se a base processada possui exatamente 300.092 linhas e 46 colunas,
+    Verifica se a base processada possui exatamente 300.086 linhas e 46 colunas,
     se não há dados nulos ou linhas duplicadas inesperadas, e se o resultado final é
     idêntico à base de referência pré-processada.
 
