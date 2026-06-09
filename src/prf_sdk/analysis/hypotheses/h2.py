@@ -18,8 +18,10 @@ from prf_sdk.utils.plots import set_plotting_theme
 import pandas as pd
 
 from prf_sdk.analysis.temporal import (
+    build_monthly_series,
     prepare_h2_temporal_features,
     run_h2_proportion_tests,
+    run_stl_decomposition,
     summarize_h2_periods,
 )
 
@@ -129,6 +131,40 @@ def build_h2_figure(summary: pd.DataFrame, output_path: Path) -> Path:
     return output_path
 
 
+def build_stl_figure(monthly: pd.DataFrame, output_path: Path) -> Path:
+    """Gera figura STL de 4 paineis para o volume mensal de sinistros."""
+    stl = run_stl_decomposition(monthly["total"])
+
+    set_plotting_theme()
+    fig, axes = plt.subplots(4, 1, figsize=(12, 9), sharex=True)
+
+    components = [
+        ("observed", "Observado", "#64748b"),
+        ("trend", "Tendência", "#3b82f6"),
+        ("seasonal", "Sazonalidade", "#10b981"),
+        ("residual", "Resíduo", "#f59e0b"),
+    ]
+    for ax, (key, label, color) in zip(axes, components):
+        s = stl[key]
+        ax.plot(s.index, s.values, color=color, linewidth=1.5)
+        ax.set_ylabel(label, fontsize=9)
+        ax.grid(True, alpha=0.3)
+        if key != "observed":
+            ax.axhline(0, color="gray", linewidth=0.5, linestyle="--")
+
+    pct = stl["pct_variance_seasonal"]
+    axes[0].set_title(
+        f"Decomposição STL — Sinistros Mensais  "
+        f"(sazonalidade explica {pct:.1%} da variância)",
+        fontsize=11,
+    )
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    return output_path
+
+
 def run_h2_analysis(
     data_path: Path | str | None = DEFAULT_PROCESSED_PATH,
     output_dir: Path | str = DEFAULT_OUTPUT_DIR,
@@ -144,10 +180,16 @@ def run_h2_analysis(
     summary_path = output_dir / "h2_resumo_periodos.csv"
     tests_path = output_dir / "h2_testes_proporcao.csv"
     figure_path = output_dir / "h2_periodos_fatalidade.png"
+    stl_figure_path = output_dir / "h2_stl_decomposicao.png"
 
     summary.to_csv(summary_path, index=False)
     tests.to_csv(tests_path, index=False)
     figure_path = build_h2_figure(summary, figure_path)
+
+    monthly = build_monthly_series(df)
+    stl_volume = run_stl_decomposition(monthly["total"])
+    stl_severity = run_stl_decomposition(monthly["proporcao_fatal"])
+    stl_figure_path = build_stl_figure(monthly, stl_figure_path)
 
     status = classify_h2_result(summary, tests)
     intense = summary[
@@ -183,9 +225,13 @@ def run_h2_analysis(
         "support_metric": metric,
         "summary": summary,
         "tests": tests,
+        "monthly_series": monthly,
+        "stl_volume": stl_volume,
+        "stl_severity": stl_severity,
         "summary_path": summary_path,
         "tests_path": tests_path,
         "figure_path": figure_path,
+        "stl_figure_path": stl_figure_path,
     }
 
 

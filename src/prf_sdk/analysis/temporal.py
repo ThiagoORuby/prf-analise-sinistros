@@ -11,10 +11,11 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
+
 try:
-    from statsmodels.tsa.seasonal import seasonal_decompose
+    from statsmodels.tsa.seasonal import STL as _STL
 except ModuleNotFoundError:  # pragma: no cover - fallback for minimal runtimes
-    seasonal_decompose = None
+    _STL = None
 
 
 VACATION_MONTHS = (1, 7, 12)
@@ -184,3 +185,53 @@ def run_h2_proportion_tests(df: pd.DataFrame) -> pd.DataFrame:
         ),
     ]
     return pd.DataFrame([test.__dict__ for test in tests])
+
+
+def build_monthly_series(df: pd.DataFrame) -> pd.DataFrame:
+    """Agrega sinistros por mes para analise de sazonalidade STL.
+
+    Retorna DataFrame indexado por timestamp mensal com colunas
+    ``total``, ``fatais`` e ``proporcao_fatal``.
+    """
+    h2 = df.copy()
+    if not pd.api.types.is_datetime64_any_dtype(h2["data_hora"]):
+        h2["data_hora"] = pd.to_datetime(h2["data_hora"], errors="coerce")
+    h2 = h2.dropna(subset=["data_hora"])
+    h2["sinistro_fatal"] = (
+        (h2["mortos"].fillna(0) > 0)
+        | h2["classificacao_acidente"].isin(
+            ["Com Vitimas Fatais", "Com Vítimas Fatais"]
+        )
+    ).astype(int)
+    h2["ano_mes"] = h2["data_hora"].dt.to_period("M")
+    monthly = (
+        h2.groupby("ano_mes")
+        .agg(total=("sinistro_fatal", "count"), fatais=("sinistro_fatal", "sum"))
+        .reset_index()
+    )
+    monthly["proporcao_fatal"] = monthly["fatais"] / monthly["total"]
+    monthly.index = monthly["ano_mes"].dt.to_timestamp()
+    return monthly.drop(columns=["ano_mes"]).sort_index()
+
+
+def run_stl_decomposition(series: pd.Series, period: int = 12) -> dict:
+    """Executa decomposicao STL-LOESS sobre uma serie temporal mensal.
+
+    Retorna dicionario com as componentes (observed, trend, seasonal, residual)
+    como Series e a proporcao da variancia total explicada pela sazonalidade.
+    """
+    if _STL is None:
+        raise ImportError("statsmodels >= 0.12 necessario para decomposicao STL")
+    series = series.dropna()
+    result = _STL(series, period=period, robust=True).fit()
+    seasonal = pd.Series(result.seasonal, index=series.index)
+    pct_variance_seasonal = (
+        float(seasonal.var() / series.var()) if series.var() > 0 else 0.0
+    )
+    return {
+        "observed": pd.Series(result.observed, index=series.index),
+        "trend": pd.Series(result.trend, index=series.index),
+        "seasonal": seasonal,
+        "residual": pd.Series(result.resid, index=series.index),
+        "pct_variance_seasonal": pct_variance_seasonal,
+    }

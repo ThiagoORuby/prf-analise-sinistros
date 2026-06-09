@@ -1,3 +1,0 @@
-"""
-Análise Espacial (BDSCAN, Clustering)
-"""
