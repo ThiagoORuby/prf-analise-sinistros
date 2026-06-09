@@ -1,21 +1,11 @@
-"""
-Avaliacao da Hipotese 2.
-
-H2: fins de semana, feriados e periodos de ferias concentram maior frequencia
-de sinistros e maior proporcao de sinistros com vitimas fatais.
-"""
-
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
-import seaborn as sns
-
-from prf_sdk.utils.plots import set_plotting_theme
-
 import pandas as pd
+import seaborn as sns
 
 from prf_sdk.analysis.temporal import (
     build_monthly_series,
@@ -24,12 +14,11 @@ from prf_sdk.analysis.temporal import (
     run_stl_decomposition,
     summarize_h2_periods,
 )
+from prf_sdk.utils.plots import set_plotting_theme
 
 
 BASE_DIR = Path(__file__).resolve().parents[4]
-DEFAULT_PROCESSED_PATH = (
-    BASE_DIR / "data/processed/datatran_2022_2026_processed_v1.csv"
-)
+DEFAULT_PROCESSED_PATH = BASE_DIR / "data/processed/datatran_2022_2026_processed_v1.csv"
 DEFAULT_OUTPUT_DIR = BASE_DIR / "docs/figures"
 
 
@@ -192,9 +181,7 @@ def run_h2_analysis(
     stl_figure_path = build_stl_figure(monthly, stl_figure_path)
 
     status = classify_h2_result(summary, tests)
-    intense = summary[
-        summary["grupo"] == "Periodo intenso (qualquer)"
-    ].iloc[0]
+    intense = summary[summary["grupo"] == "Periodo intenso (qualquer)"].iloc[0]
     reference = summary[
         summary["grupo"] == "Demais dias - Periodo intenso (qualquer)"
     ].iloc[0]

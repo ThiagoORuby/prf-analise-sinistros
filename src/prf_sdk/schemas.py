@@ -196,6 +196,98 @@ class H3Result:
 
 
 @dataclass
+class H5RegionStats:
+    """
+    Estatísticas de fatalidade e infraestrutura para uma região brasileira.
+
+    :param regiao: Nome da região (Norte, Nordeste, Centro-Oeste, Sudeste, Sul).
+    :param total: Total de sinistros registrados na região.
+    :param fatais: Número de sinistros fatais.
+    :param taxa_fatalidade: Taxa de fatalidade em percentual.
+    :param pct_pista_simples: Percentual de sinistros ocorridos em pista simples.
+    """
+
+    regiao: str
+    total: int
+    fatais: int
+    taxa_fatalidade: float
+    pct_pista_simples: float
+
+
+@dataclass
+class H5PistaStats:
+    """
+    Estatísticas de fatalidade por tipo de pista.
+
+    :param tipo_pista: Categoria da pista (Simples, Dupla, Múltipla).
+    :param total: Total de sinistros no tipo de pista.
+    :param fatais: Número de sinistros fatais.
+    :param taxa_fatalidade: Taxa de fatalidade em percentual.
+    """
+
+    tipo_pista: str
+    total: int
+    fatais: int
+    taxa_fatalidade: float
+
+
+@dataclass
+class H5PostHocResult:
+    """
+    Resultado do teste post-hoc pairwise entre duas regiões (z-test de proporções
+    com correção de Bonferroni).
+
+    :param regiao_a: Primeira região da comparação.
+    :param regiao_b: Segunda região da comparação.
+    :param taxa_a: Taxa de fatalidade da região A (%).
+    :param taxa_b: Taxa de fatalidade da região B (%).
+    :param z_statistic: Estatística z do teste de duas proporções.
+    :param p_value: P-valor bruto (bicaudal).
+    :param p_value_bonferroni: P-valor após correção de Bonferroni (k=10).
+    :param significant: ``True`` se p_value_bonferroni < 0,05.
+    """
+
+    regiao_a: str
+    regiao_b: str
+    taxa_a: float
+    taxa_b: float
+    z_statistic: float
+    p_value: float
+    p_value_bonferroni: float
+    significant: bool
+
+
+@dataclass
+class H5Result:
+    """
+    Resultado consolidado da verificação de H5.
+
+    :param chi2: Estatística qui-quadrado do teste de independência
+        ``regiao`` × ``is_fatal``.
+    :param p_value: P-valor do teste global.
+    :param cramers_v: V de Cramér com correção de viés.
+    :param region_stats: Lista de :class:`H5RegionStats` por região,
+        ordenada por taxa de fatalidade decrescente.
+    :param pista_stats: Lista de :class:`H5PistaStats` por tipo de pista,
+        ordenada por taxa de fatalidade decrescente.
+    :param posthoc: Lista de :class:`H5PostHocResult` para todos os pares
+        de regiões (k=10).
+    :param confirmed: ``True`` se o teste global for significativo e o
+        padrão regional acompanhar a proporção de pista simples.
+    :param summary: Texto descritivo dos principais resultados.
+    """
+
+    chi2: float
+    p_value: float
+    cramers_v: float
+    region_stats: list[H5RegionStats]
+    pista_stats: list[H5PistaStats]
+    posthoc: list[H5PostHocResult]
+    confirmed: bool
+    summary: str = field(default="", repr=False)
+
+
+@dataclass
 class CVScores:
     """
     Métricas agregadas de um processo de cross-validation.

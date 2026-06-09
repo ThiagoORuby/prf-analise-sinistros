@@ -17,6 +17,90 @@ def set_plotting_theme():
     plt.rcParams["axes.labelsize"] = 12
 
 
+def build_h1b_fatality_figure(
+    df: pd.DataFrame,
+    output_path: Path,
+    behavioral_causes: list[str] | None = None,
+    night_periods: tuple[str, ...] = ("Madrugada", "Noite"),
+) -> Path:
+    """
+    Gera gráfico de barras agrupadas com taxa de fatalidade por grupo de causa
+    (comportamental vs. outras) e período do dia (diurno vs. noturno).
+
+    Visualiza o padrão de inversão do OR de H1b: causas comportamentais
+    são relativamente mais letais durante o dia do que à noite, quando
+    comparadas com as demais causas no mesmo período.
+
+    :param df: DataFrame com colunas ``causa_acidente``, ``horario`` e
+        ``classificacao_acidente``.
+    :param output_path: Caminho de saída da figura.
+    :param behavioral_causes: Lista de causas comportamentais. Se ``None``,
+        usa as quatro causas padrão de H1.
+    :param night_periods: Faixas horárias classificadas como noturnas.
+    :returns: Caminho da figura salva.
+    """
+    if behavioral_causes is None:
+        behavioral_causes = [
+            "Condutor Dormindo",
+            "Velocidade Incompatível",
+            "Ingestão de álcool pelo condutor",
+            "Ingestão de substâncias psicoativas pelo condutor",
+        ]
+
+    df_temp = df.copy()
+    df_temp["causa_grupo"] = (
+        df_temp["causa_acidente"]
+        .isin(behavioral_causes)
+        .map({True: "Comportamental", False: "Outras causas"})
+    )
+    df_temp["periodo"] = (
+        df_temp["horario"].isin(night_periods).map({True: "Noturno", False: "Diurno"})
+    )
+    df_temp["is_fatal"] = df_temp["classificacao_acidente"].isin(
+        ["Com Vítimas Fatais", "Com Vitimas Fatais"]
+    )
+
+    rates = df_temp.groupby(["periodo", "causa_grupo"])["is_fatal"].mean().reset_index()
+    rates["taxa_fatalidade"] = rates["is_fatal"] * 100
+
+    set_plotting_theme()
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    palette = {"Comportamental": "#ef4444", "Outras causas": "#64748b"}
+    sns.barplot(
+        data=rates,
+        x="periodo",
+        y="taxa_fatalidade",
+        hue="causa_grupo",
+        order=["Diurno", "Noturno"],
+        hue_order=["Comportamental", "Outras causas"],
+        ax=ax,
+        palette=palette,
+    )
+    ax.set_xlabel("Período do Dia")
+    ax.set_ylabel("Taxa de Fatalidade (%)")
+    ax.legend(title="Grupo de causa")
+
+    for p in ax.patches:
+        height = p.get_height()
+        if not np.isnan(height) and height > 0:
+            ax.annotate(
+                f"{height:.2f}%",
+                (p.get_x() + p.get_width() / 2.0, height),
+                ha="center",
+                va="bottom",
+                fontsize=10,
+                xytext=(0, 3),
+                textcoords="offset points",
+            )
+
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    return output_path
+
+
 def build_eda_categoricas_figure(df: pd.DataFrame, output_path: Path) -> Path:
     """
     Gera gráfico de barras com taxa de fatalidade por tipo de acidente (top 10

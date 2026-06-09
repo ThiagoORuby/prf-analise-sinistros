@@ -1,3 +1,5 @@
+from math import erfc, sqrt
+
 import numpy as np
 from scipy import stats
 
@@ -91,3 +93,23 @@ def odds_ratio_with_ci(
         significant=significant,
         n=n,
     )
+
+
+def two_proportion_z_test_counts(
+    n1: int, k1: int, n2: int, k2: int
+) -> tuple[float, float]:
+    """Z-test bicaudal de duas proporcoes a partir de contagens brutas.
+
+    :param n1: Tamanho do grupo 1.
+    :param k1: Sucessos (eventos fatais) no grupo 1.
+    :param n2: Tamanho do grupo 2.
+    :param k2: Sucessos (eventos fatais) no grupo 2.
+    :return: Tupla ``(z_statistic, p_value)``.
+    """
+    p1 = k1 / n1
+    p2 = k2 / n2
+    p_pool = (k1 + k2) / (n1 + n2)
+    se = sqrt(p_pool * (1 - p_pool) * (1 / n1 + 1 / n2))
+    z = (p1 - p2) / se if se > 0 else 0.0
+    p = erfc(abs(z) / sqrt(2))
+    return float(z), float(p)
