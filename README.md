@@ -1,5 +1,7 @@
 # Análise de Gravidade de Sinistros nas Rodovias Federais Brasileiras
 
+[Dashboard interativo aqui](https://dashboard-prf.streamlit.app/)
+
 Este repositório contém o projeto de análise e modelagem preditiva de sinistros de trânsito ocorridos nas rodovias federais brasileiras (recorte temporal de 2022 a 2026), baseado nos dados abertos fornecidos pela Polícia Rodoviária Federal (PRF).
 
 O objetivo principal é identificar padrões e fatores (temporais, espaciais, meteorológicos, causais e infraestruturais) associados à gravidade dos acidentes e implementar um modelo preditivo capaz de classificar a gravidade das ocorrências, disponibilizando os resultados em um painel interativo.
