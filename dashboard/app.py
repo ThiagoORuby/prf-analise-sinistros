@@ -26,7 +26,7 @@ COR_PRINCIPAL = [PALETA_CATEGORICA[0]]
 @st.cache_data
 def load_data():
     try:
-        df = pd.read_csv('../data/processed/datatran_2022_2026_processed_v1.csv')
+        df = pd.read_csv('datatran_2022_2026_processed_v1.csv')
         df['data_hora'] = pd.to_datetime(df['data_hora'], errors='coerce')
         df['ano'] = df['data_hora'].dt.year
         df['hora'] = df['data_hora'].dt.hour
@@ -183,3 +183,58 @@ if 'dia_semana' in df_filtrado.columns and 'hora' in df_filtrado.columns:
     fig = formatar_figura(fig)
     fig.update_layout(xaxis=dict(dtick=1))
     st.plotly_chart(fig, width="stretch")
+
+if 'latitude' in df_filtrado.columns and 'longitude' in df_filtrado.columns:
+    st.markdown("---")
+    st.subheader("Mapa de Calor de Acidentes no Brasil")
+
+    import plotly.graph_objects as go
+
+    df_mapa = (
+        df_filtrado[['latitude', 'longitude']]
+        .dropna()
+        .rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+    )
+
+    # Agrupa em células de ~0,05° para reduzir ruído e melhorar a densidade
+    df_mapa['lat_r'] = df_mapa['lat'].round(2)
+    df_mapa['lon_r'] = df_mapa['lon'].round(2)
+    densidade = df_mapa.groupby(['lat_r', 'lon_r']).size().reset_index(name='count')
+
+    fig_mapa = go.Figure(go.Densitymapbox(
+        lat=densidade['lat_r'],
+        lon=densidade['lon_r'],
+        z=densidade['count'],
+        radius=12,
+        colorscale=[
+            [0.0,  'rgba(15,23,42,0)'],
+            [0.15, '#1d4ed8'],
+            [0.40, '#facc15'],
+            [0.70, '#f97316'],
+            [1.0,  '#ef4444'],
+        ],
+        zmin=0,
+        zmax=densidade['count'].quantile(0.97),   # evita que poucos pontos extremos "apaguem" a variação
+        showscale=True,
+        colorbar=dict(
+            title=dict(text="Acidentes", font=dict(color="#94A3B8")),
+            tickfont=dict(color="#94A3B8"),
+            bgcolor='rgba(0,0,0,0)',
+        ),
+        hovertemplate="Lat: %{lat:.2f}<br>Lon: %{lon:.2f}<br>Qtd: %{z}<extra></extra>",
+    ))
+
+    fig_mapa.update_layout(
+        mapbox=dict(
+            style="carto-darkmatter",
+            center=dict(lat=-15.5, lon=-47.5),
+            zoom=3.5,
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font_color="#F8FAFC",
+        margin=dict(l=0, r=0, t=0, b=0),
+        height=520,
+    )
+
+    st.plotly_chart(fig_mapa, use_container_width=True)
