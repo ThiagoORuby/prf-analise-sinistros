@@ -7,6 +7,38 @@ import seaborn as sns
 from statsmodels.tsa.seasonal import STL
 
 
+_NE_STATES_URL = (
+    "https://raw.githubusercontent.com/nvkelso/natural-earth-vector"
+    "/master/geojson/ne_50m_admin_1_states_provinces.geojson"
+)
+_BR_LAT = (-34, 6)
+_BR_LON = (-74, -34)
+
+
+def _load_brazil_states(cache_dir: Path):
+    """Carrega limites dos estados brasileiros, baixando uma vez se necessário."""
+    import geopandas as gpd
+
+    cache_path = cache_dir / "brazil_states.geojson"
+    if not cache_path.exists():
+        import requests
+
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        resp = requests.get(_NE_STATES_URL, timeout=30)
+        resp.raise_for_status()
+        import json
+
+        data = resp.json()
+        br_features = [
+            f for f in data["features"] if f["properties"].get("iso_a2") == "BR"
+        ]
+        cache_path.write_text(
+            json.dumps({"type": "FeatureCollection", "features": br_features})
+        )
+
+    return gpd.read_file(cache_path)
+
+
 def set_plotting_theme():
     """
     Aplica um padrão visual unificado para todos os plots do projeto.
@@ -243,16 +275,126 @@ def build_stl_seasonality_figure(df: pd.DataFrame, output_path: Path) -> Path:
     return output_path
 
 
-def build_lorenz_spatial_figure(df: pd.DataFrame, output_path: Path) -> Path:
+def _build_top10_trechos(df: pd.DataFrame) -> pd.DataFrame:
+    """Agrega top-10 trechos fatais com coordenadas medianas."""
+    d = df.copy()
+    d["is_fatal"] = d["classificacao_acidente"].str.contains(
+        "Fatais", case=False, na=False
+    ) | (d["mortos"].fillna(0) > 0)
+    d["id_trecho"] = (
+        d["uf"]
+        + " — BR-"
+        + d["br"].astype(str)
+        + " (km "
+        + d["faixa_km"].astype(int).astype(str)
+        + ")"
+    )
+    return (
+        d[d["is_fatal"]]
+        .groupby("id_trecho")
+        .agg(
+            sinistros_fatais=("is_fatal", "sum"),
+            lat=("latitude", "median"),
+            lon=("longitude", "median"),
+        )
+        .reset_index()
+        .sort_values("sinistros_fatais", ascending=False)
+        .head(10)
+        .reset_index(drop=True)
+    )
+
+
+def _draw_map_panel(ax, fig, fatais, top10, states, legend_fontsize: int = 6):
+    """Desenha hexbin, bordas estaduais, marcadores numerados e legenda Amazônia."""
+    states.plot(ax=ax, facecolor="#f5f5f5", edgecolor="#b0b0b0", linewidth=0.5)
+
+    hb = ax.hexbin(
+        fatais["longitude"],
+        fatais["latitude"],
+        gridsize=120,
+        mincnt=1,
+        bins="log",
+        cmap="YlOrRd",
+        alpha=0.85,
+        zorder=2,
+    )
+
+    # Colorbar como inset dentro do painel — não redimensiona os eixos principais
+    # Posição: [x0, y0, largura, altura] em coordenadas normalizadas dos eixos
+    cbax = ax.inset_axes([0.22, 0.025, 0.52, 0.022])
+    cb = fig.colorbar(hb, cax=cbax, orientation="horizontal")
+    cb.set_label("Sinistros fatais (log)", fontsize=legend_fontsize, labelpad=2)
+    cb.ax.tick_params(labelsize=legend_fontsize - 0.5)
+    cbax.set_zorder(9)
+
+    # Estrelas + círculo com rank (sem texto longo no mapa)
+    for i, row in enumerate(top10.itertuples()):
+        ax.plot(
+            row.lon,
+            row.lat,
+            marker="*",
+            color="black",
+            markersize=9,
+            zorder=5,
+            markeredgewidth=0.3,
+        )
+        ax.text(
+            row.lon + 0.22,
+            row.lat + 0.22,
+            str(i + 1),
+            fontsize=5.5,
+            ha="center",
+            va="center",
+            zorder=7,
+            color="white",
+            fontweight="bold",
+            bbox=dict(boxstyle="circle,pad=0.12", fc="#1a1a1a", ec="none"),
+        )
+
+    # Legenda numerada na Amazônia (canto sup-esq do mapa, sem dados de rodovias)
+    legend_lines = ["★  Top-10 trechos (sinistros fatais):"] + [
+        f"  {i + 1:2d}. {row.id_trecho}  ({int(row.sinistros_fatais)})"
+        for i, row in enumerate(top10.itertuples())
+    ]
+    ax.text(
+        -73.5,
+        3.0,
+        "\n".join(legend_lines),
+        fontsize=legend_fontsize,
+        fontfamily="monospace",
+        verticalalignment="top",
+        bbox=dict(boxstyle="round,pad=0.45", fc="white", alpha=0.92, ec="#999", lw=0.5),
+        zorder=8,
+    )
+
+    ax.set_xlim(-74, -33)
+    ax.set_ylim(-34, 6)
+    ax.set_xlabel("Longitude", fontsize=legend_fontsize + 1)
+    ax.set_ylabel("Latitude", fontsize=legend_fontsize + 1)
+    ax.tick_params(labelsize=legend_fontsize)
+
+
+def build_lorenz_spatial_figure(
+    df: pd.DataFrame,
+    output_path: Path,
+    geo_cache_dir: Path | None = None,
+) -> Path:
     """
-    Gera curva de Lorenz espacial e ranking das faixas de 5 km com maior
-    concentração de sinistros fatais (top 10).
+    Gera figura com dois painéis: curva de Lorenz espacial (esquerda) e mapa
+    de calor hexagonal de sinistros fatais (direita) com os dez trechos
+    críticos marcados.
 
     :param df: DataFrame com colunas ``uf``, ``br``, ``faixa_km``,
-        ``classificacao_acidente`` e ``mortos``.
+        ``classificacao_acidente``, ``mortos``, ``latitude`` e ``longitude``.
     :param output_path: Caminho de saída da figura.
+    :param geo_cache_dir: Diretório de cache do shapefile de estados.
+        Se ``None``, usa ``output_path.parent.parent / 'geo'``.
     :returns: Caminho da figura salva.
     """
+    if geo_cache_dir is None:
+        geo_cache_dir = output_path.parent.parent / "geo"
+
+    # --- Lorenz data ---
     df_temp = df.copy()
     df_temp["id_trecho"] = (
         df_temp["uf"]
@@ -265,7 +407,6 @@ def build_lorenz_spatial_figure(df: pd.DataFrame, output_path: Path) -> Path:
     df_temp["acidente_fatal"] = df_temp["classificacao_acidente"].str.contains(
         "Fatais", case=False, na=False
     ) | (df_temp["mortos"] > 0)
-
     trechos_agg = (
         df_temp.groupby("id_trecho")
         .agg(
@@ -274,63 +415,67 @@ def build_lorenz_spatial_figure(df: pd.DataFrame, output_path: Path) -> Path:
         )
         .reset_index()
     )
-    trechos_agg = trechos_agg[trechos_agg["total_sinistros"] > 0]
-    trechos = trechos_agg.sort_values("sinistros_fatais", ascending=False).reset_index(
-        drop=True
+    trechos = (
+        trechos_agg[trechos_agg["total_sinistros"] > 0]
+        .sort_values("sinistros_fatais", ascending=False)
+        .reset_index(drop=True)
     )
-
     total_trechos = len(trechos)
     total_fatais = trechos["sinistros_fatais"].sum()
     trechos["pct_trechos"] = np.arange(1, total_trechos + 1) / total_trechos
     trechos["pct_fatais"] = trechos["sinistros_fatais"].cumsum() / total_fatais
-
     top_5pct_fatais = trechos[trechos["pct_trechos"] <= 0.05]["pct_fatais"].max()
-    top_10 = trechos.head(10)
 
+    # --- map data ---
+    top10 = _build_top10_trechos(df)
+    df_temp2 = df.copy()
+    df_temp2["is_fatal"] = df_temp2["classificacao_acidente"].str.contains(
+        "Fatais", case=False, na=False
+    ) | (df_temp2["mortos"].fillna(0) > 0)
+    fatais = df_temp2[
+        df_temp2["is_fatal"]
+        & df_temp2["latitude"].between(*_BR_LAT)
+        & df_temp2["longitude"].between(*_BR_LON)
+    ]
+    states = _load_brazil_states(geo_cache_dir)
+
+    # --- figura ---
     set_plotting_theme()
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    fig = plt.figure(figsize=(18, 8))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1, 1.15], wspace=0.25)
+    ax_lorenz = fig.add_subplot(gs[0])
+    ax_map = fig.add_subplot(gs[1])
 
-    axes[0].plot(
+    # Lorenz curve
+    ax_lorenz.plot(
         [0, 1], [0, 1], linestyle="--", color="gray", label="Distribuição Uniforme"
     )
-    axes[0].plot(
+    ax_lorenz.plot(
         trechos["pct_trechos"],
         trechos["pct_fatais"],
         color="red",
         linewidth=2,
         label="Concentração Real",
     )
-    axes[0].axvline(x=0.05, color="orange", linestyle=":", alpha=0.7)
-    axes[0].axhline(y=top_5pct_fatais, color="orange", linestyle=":", alpha=0.7)
-    axes[0].plot(0.05, top_5pct_fatais, "ro")
-    axes[0].text(
+    ax_lorenz.axvline(x=0.05, color="orange", linestyle=":", alpha=0.7)
+    ax_lorenz.axhline(y=top_5pct_fatais, color="orange", linestyle=":", alpha=0.7)
+    ax_lorenz.plot(0.05, top_5pct_fatais, "ro")
+    ax_lorenz.text(
         0.06,
         top_5pct_fatais - 0.05,
         f"Top 5% trechos\n→ {top_5pct_fatais:.1%} dos fatais",
         color="darkred",
     )
-    axes[0].set_xlabel("% Acumulada de Trechos")
-    axes[0].set_ylabel("% Acumulada de Sinistros Fatais")
-    axes[0].legend()
-    axes[0].grid(True, alpha=0.3)
+    ax_lorenz.set_xlabel("% Acumulada de Trechos")
+    ax_lorenz.set_ylabel("% Acumulada de Sinistros Fatais")
+    ax_lorenz.legend()
+    ax_lorenz.grid(True, alpha=0.3)
 
-    sns.barplot(
-        data=top_10, x="sinistros_fatais", y="id_trecho", ax=axes[1], palette="Reds_r"
-    )
-    axes[1].set_xlabel("Número de Sinistros Fatais")
-    axes[1].set_ylabel("")
-    axes[1].set_xlim(0, top_10["sinistros_fatais"].max() * 1.15)
-    for p in axes[1].patches:
-        axes[1].annotate(
-            f"{int(p.get_width())}",
-            (p.get_width() + 0.3, p.get_y() + p.get_height() / 2.0),
-            ha="left",
-            va="center",
-        )
+    # Map panel
+    _draw_map_panel(ax_map, fig, fatais, top10, states, legend_fontsize=6)
 
-    fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=180, bbox_inches="tight")
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return output_path
 
@@ -389,5 +534,52 @@ def build_regional_h5_figure(df: pd.DataFrame, output_path: Path) -> Path:
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    return output_path
+
+
+def build_fatality_map_figure(
+    df: pd.DataFrame,
+    output_path: Path,
+    geo_cache_dir: Path | None = None,
+) -> Path:
+    """
+    Gera mapa de calor hexagonal dos sinistros fatais nas rodovias federais
+    brasileiras, sobreposto ao contorno dos estados.
+
+    A intensidade é proporcional à concentração de ocorrências em escala
+    logarítmica (``hexbin`` com ``bins='log'``). Os dez trechos de 5 km com
+    maior número absoluto de sinistros fatais são marcados com estrela
+    numerada; a legenda completa é posicionada na Amazônia, onde a densidade
+    de rodovias é mínima.
+
+    :param df: DataFrame com colunas ``classificacao_acidente``, ``mortos``,
+        ``latitude``, ``longitude``, ``uf``, ``br`` e ``faixa_km``.
+    :param output_path: Caminho de saída da figura (recomendado: ``.png``).
+    :param geo_cache_dir: Diretório onde o shapefile de estados é cacheado.
+        Se ``None``, usa ``output_path.parent.parent / 'geo'``.
+    :returns: Caminho da figura salva.
+    """
+    if geo_cache_dir is None:
+        geo_cache_dir = output_path.parent.parent / "geo"
+
+    df_temp = df.copy()
+    df_temp["is_fatal"] = df_temp["classificacao_acidente"].str.contains(
+        "Fatais", case=False, na=False
+    ) | (df_temp["mortos"].fillna(0) > 0)
+    fatais = df_temp[
+        df_temp["is_fatal"]
+        & df_temp["latitude"].between(*_BR_LAT)
+        & df_temp["longitude"].between(*_BR_LON)
+    ]
+    top10 = _build_top10_trechos(df)
+    states = _load_brazil_states(geo_cache_dir)
+
+    set_plotting_theme()
+    fig, ax = plt.subplots(figsize=(10, 10))
+    _draw_map_panel(ax, fig, fatais, top10, states, legend_fontsize=7)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return output_path

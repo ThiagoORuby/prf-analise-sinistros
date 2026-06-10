@@ -2,6 +2,7 @@ import pandas as pd
 
 from prf_sdk.settings import settings
 from prf_sdk.utils.plots import (
+    build_fatality_map_figure,
     build_h1b_fatality_figure,
     build_lorenz_spatial_figure,
     build_regional_h5_figure,
@@ -54,6 +55,12 @@ def main():
         build_regional_h5_figure,
         df,
         FIGURES_DIR / "fig4.jpg",
+    )
+    _run(
+        "fig_mapa.png  (mapa de calor sinistros fatais)",
+        build_fatality_map_figure,
+        df,
+        FIGURES_DIR / "fig_mapa.png",
     )
 
     print("\n=== Figuras de análise H2 ===")
