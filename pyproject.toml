@@ -11,6 +11,8 @@ dependencies = [
   "matplotlib>=3.10.9",
   "numpy>=2.4.6",
   "pandas>=3.0.3",
+  "plotly>=6.8.0",
+  "pyarrow>=24.0.0",
   "pydantic>=2.13.4",
   "pydantic-settings>=2.14.1",
   "scikit-learn>=1.8.0",
@@ -18,6 +20,7 @@ dependencies = [
   "seaborn>=0.13.2",
   "shapely>=2.1.2",
   "statsmodels>=0.14.6",
+  "streamlit>=1.58.0",
   "unidecode>=1.4.0",
 ]
 
