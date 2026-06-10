@@ -1,17 +1,17 @@
 # Fdb version 4
-["bibtex main"] 1781036906.77184 "main.aux" "main.bbl" "main" 1781037895.97295 0
-  "./referencias.bib" 1781036905.42703 3446 53f1f0643833737e6193fe5da8269ac4 ""
-  "./sbc.bst" 1780992134 21864 a668496cca21cfdd211f7fb5f0d57565 ""
-  "main.aux" 1781037895.8859 6512 0180d943003d8790e28b2bd1d4c1c452 "pdflatex"
+["bibtex main"] 1781050795.9235 "main.aux" "main.bbl" "main" 1781050991.44874 0
+  "./referencias.bib" 1781048784.27683 3446 53f1f0643833737e6193fe5da8269ac4 ""
+  "./sbc.bst" 1781048784.27683 21864 a668496cca21cfdd211f7fb5f0d57565 ""
+  "main.aux" 1781050991.36654 6701 22825418f0e2eba647f5c689d9797d23 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1781037895.50349 "main.tex" "main.pdf" "main" 1781037895.97316 0
-  "../figures/fig1.jpg" 1781036208.74094 71097 d0d10b848c31d594a315a85f11e681de ""
-  "../figures/fig2.jpg" 1781036210.45196 144261 8ac826f228b936889a42f5daaec8d276 ""
-  "../figures/fig3.jpg" 1781036212.21298 189407 08f7ca001f5304c08aa753d5e3ed6a40 ""
-  "../figures/fig4.jpg" 1781036213.24799 103669 b01b0ba7d60430b115a1b7df4dbac2da ""
+["pdflatex"] 1781050991.03533 "main.tex" "main.pdf" "main" 1781050991.44894 0
+  "../figures/fig1.jpg" 1781050354.45182 71097 d0d10b848c31d594a315a85f11e681de ""
+  "../figures/fig2.jpg" 1781050356.33084 144261 8ac826f228b936889a42f5daaec8d276 ""
+  "../figures/fig3.jpg" 1781050630.39416 183655 7fad55b23d9613344127f4bdc10c2d6d ""
+  "../figures/fig4.jpg" 1781050361.71791 103669 b01b0ba7d60430b115a1b7df4dbac2da ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1777593600 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrb7t.tfm" 1136768653 960 4ab65358b8406f30ef5496c8c096d22b ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrb8r.tfm" 1136768653 1292 3059476c50a24578715759f22652f3d0 ""
@@ -111,10 +111,10 @@
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1777593600 43785 66587115382950aca692b5f6e3c2fb74 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1778764357 293079 eb34fef57086acb79b142616bb11dc70 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1780982491 2299040 64234d184e29a3286cfdc697a0071c65 ""
-  "main.aux" 1781037895.8859 6512 0180d943003d8790e28b2bd1d4c1c452 "pdflatex"
-  "main.bbl" 1781036906.78305 2690 bf81b1405b6183104a798005d4f6e587 "bibtex main"
-  "main.tex" 1781037893.79387 38546 c38429450dfd6851452174f3dbcf4b9c ""
-  "sbc-template.sty" 1780992134 6074 ecc54df5124d8db4ac67c42cc728f3a5 ""
+  "main.aux" 1781050991.36654 6701 22825418f0e2eba647f5c689d9797d23 "pdflatex"
+  "main.bbl" 1781050795.93417 2690 bf81b1405b6183104a798005d4f6e587 "bibtex main"
+  "main.tex" 1781050989.60151 38657 6e8f6c74e07a4e33300ad30f8cf3556a ""
+  "sbc-template.sty" 1781048784.27683 6074 ecc54df5124d8db4ac67c42cc728f3a5 ""
   (generated)
   "main.aux"
   "main.log"

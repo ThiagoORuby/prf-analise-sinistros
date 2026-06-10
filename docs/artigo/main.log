@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.9)  9 JUN 2026 17:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.9)  9 JUN 2026 21:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -386,12 +386,12 @@ Overfull \hbox (18.02328pt too wide) in paragraph at lines 225--226
  []
 
 [3] [4]
-Underfull \hbox (badness 3758) in paragraph at lines 348--358
+Underfull \hbox (badness 3758) in paragraph at lines 347--357
 []\OT1/ptm/m/n/12 Essas car-ac-ter[]^^Psticas in-vi-a-bi-lizam a suposi[][]ao de nor-mal-i-dade necess[]aria
  []
 
 
-Underfull \hbox (badness 5862) in paragraph at lines 348--358
+Underfull \hbox (badness 5862) in paragraph at lines 347--357
 \OT1/ptm/m/n/12 para testes param[]etricos. Optou-se, por-tanto, pelo teste de Kruskal-Wallis
  []
 
@@ -399,27 +399,27 @@ Underfull \hbox (badness 5862) in paragraph at lines 348--358
 <../figures/fig1.jpg, id=36, 637.582pt x 420.772pt>
 File: ../figures/fig1.jpg Graphic file (type jpg)
 <use ../figures/fig1.jpg>
-Package pdftex.def Info: ../figures/fig1.jpg  used on input line 470.
+Package pdftex.def Info: ../figures/fig1.jpg  used on input line 469.
 (pdftex.def)             Requested size: 341.43437pt x 225.33229pt.
  [7 <../figures/fig1.jpg>]
 <../figures/fig2.jpg, id=41, 853.9905pt x 348.502pt>
 File: ../figures/fig2.jpg Graphic file (type jpg)
 <use ../figures/fig2.jpg>
-Package pdftex.def Info: ../figures/fig2.jpg  used on input line 512.
+Package pdftex.def Info: ../figures/fig2.jpg  used on input line 511.
 (pdftex.def)             Requested size: 405.45047pt x 165.4604pt.
  [8 <../figures/fig2.jpg>]
-<../figures/fig3.jpg, id=45, 1143.472pt x 420.772pt>
+<../figures/fig3.jpg, id=45, 1046.4696pt x 495.7722pt>
 File: ../figures/fig3.jpg Graphic file (type jpg)
 <use ../figures/fig3.jpg>
-Package pdftex.def Info: ../figures/fig3.jpg  used on input line 576.
-(pdftex.def)             Requested size: 426.79135pt x 157.04433pt.
- [9 <../figures/fig3.jpg>]
+Package pdftex.def Info: ../figures/fig3.jpg  used on input line 575.
+(pdftex.def)             Requested size: 426.79135pt x 202.1937pt.
+ [9]
 <../figures/fig4.jpg, id=49, 782.122pt x 421.575pt>
 File: ../figures/fig4.jpg Graphic file (type jpg)
 <use ../figures/fig4.jpg>
-Package pdftex.def Info: ../figures/fig4.jpg  used on input line 587.
+Package pdftex.def Info: ../figures/fig4.jpg  used on input line 588.
 (pdftex.def)             Requested size: 384.1096pt x 207.04314pt.
- [10 <../figures/fig4.jpg>] [11] [12] (./main.bbl
+ [10 <../figures/fig3.jpg>] [11 <../figures/fig4.jpg>] [12] (./main.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 40--44
 []\OT1/ptm/m/n/12 Pol[]^^Pcia Rodovi[]aria Fed-eral (2024b).  Di-cion[]ario de vari[]aveis | da-dos
  []
@@ -438,13 +438,13 @@ L3 programming layer <2026-03-20>
 Here is how much of TeX's memory you used:
  6967 strings out of 469296
  113244 string characters out of 5465562
- 561312 words of memory out of 6000000
+ 561313 words of memory out of 6000000
  35709 multiletter control sequences out of 15000+600000
  651684 words of font info for 87 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 72i,14n,79p,1381b,439s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,14n,79p,1147b,439s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (13 pages, 725591 bytes).
+Output written on main.pdf (13 pages, 719986 bytes).
 PDF statistics:
  127 PDF objects out of 1000 (max. 8388607)
  77 compressed objects within 1 object stream

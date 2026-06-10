@@ -321,7 +321,6 @@ bivariadas.
 \textbf{Variável} & \textbf{Média} & \textbf{Mediana} & \textbf{DP} &
   \textbf{Assim.} & \textbf{Curtose} & \textbf{\% zero} \\
 \midrule
-\texttt{km}                       & 260,5 & 195,0 & 226,7 &  0,998 &   0,348 &  0,00 \\
 \texttt{pessoas}                  &   2,6 &   2,0 &   2,2 & 11,275 & 231,995 &  0,00 \\
 \texttt{mortos}                   &   0,08 &  0,0 &   0,34 & 10,802 & 572,246 & 92,83 \\
 \texttt{feridos\_leves}           &   0,87 &  1,0 &   1,09 &  9,960 & 336,963 & 37,20 \\
@@ -574,13 +573,15 @@ e intervenções de infraestrutura.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{../figures/fig3.jpg}
-\caption{Curva de Lorenz espacial (faixas de 5 km) e ranking dos dez trechos com maior número de sinistros fatais no período 2022--2026.}
+\caption{Curva de Lorenz espacial (faixas de 5 km) e mapa de calor hexagonal dos sinistros fatais nas rodovias federais (2022--2026), em escala logarítmica. As estrelas numeradas indicam os dez trechos de 5 km com maior número absoluto de fatalidades; a legenda no canto superior esquerdo lista os identificadores completos.}
 \label{fig:lorenz_espacial}
 \end{figure}
 
 \subsubsection{H5 --- Heterogeneidade Regional}
 
-A verificação de H5 avaliou a associação entre a severidade dos acidentes, as regiões brasileiras e a infraestrutura viária (tipo de pista). O teste qui-quadrado de independência confirmou que a gravidade dos sinistros difere significativamente entre as cinco regiões ($\chi^2 = 2023{,}65$; $p < 0{,}001$; $V = 0{,}082$). A análise de cruzamento de dados revela que a taxa de fatalidade em pistas simples (9,88\%) é mais do que o dobro da registrada em pistas duplas (4,71\%) e múltiplas (4,19\%). A letalidade regional acompanha diretamente a proporção de pista simples de cada malha: as regiões Norte (69,90\% de pista simples nos sinistros) e Nordeste (55,52\%) registraram as maiores taxas de fatalidade (11,02\% e 10,33\%, respectivamente). Em contraste, o Sudeste, com apenas 40,43\% de seus acidentes em pista simples, registrou uma taxa de fatalidade de 5,74\%. Os testes post-hoc pairwise com correção de Bonferroni ($k=10$) indicaram que as diferenças de letalidade entre as regiões são estatisticamente significativas ($p_{adj} < 0,05$), com exceção das comparações Sul--Sudeste ($p_{adj} = 0{,}182$) e Norte--Nordeste ($p_{adj} = 0{,}111$). Assim, H5 é confirmada, evidenciando que a precariedade da infraestrutura regional (predomínio de pistas simples) atua como um fator estrutural de agravamento da letalidade.
+A verificação de H5 avaliou a associação entre a severidade dos acidentes, as regiões brasileiras e a infraestrutura viária (tipo de pista). O teste qui-quadrado de independência confirmou que a gravidade dos sinistros difere significativamente entre as cinco regiões ($\chi^2 = 2023{,}65$; $p < 0{,}001$; $V = 0{,}082$). A análise de cruzamento de dados revela que a taxa de fatalidade em pistas simples (9,88\%) é mais do que o dobro da registrada em pistas duplas (4,71\%) e múltiplas (4,19\%). 
+
+A letalidade regional acompanha diretamente a proporção de pista simples de cada malha: as regiões Norte (69,90\% de pista simples nos sinistros) e Nordeste (55,52\%) registraram as maiores taxas de fatalidade (11,02\% e 10,33\%, respectivamente). Em contraste, o Sudeste, com apenas 40,43\% de seus acidentes em pista simples, registrou uma taxa de fatalidade de 5,74\%. Os testes post-hoc pairwise com correção de Bonferroni ($k=10$) indicaram que as diferenças de letalidade entre as regiões são estatisticamente significativas ($p_{adj} < 0,05$), com exceção das comparações Sul--Sudeste ($p_{adj} = 0{,}182$) e Norte--Nordeste ($p_{adj} = 0{,}111$). Assim, \textbf{H5 é confirmada}, evidenciando que a precariedade da infraestrutura regional (predomínio de pistas simples) atua como um fator estrutural de agravamento da letalidade.
 
 \begin{figure}[ht]
 \centering
